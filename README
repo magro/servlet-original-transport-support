@@ -1,0 +1,3 @@
+If your loadbalancer (e.g. F5 BigIp) offloads SSL you mostly need to know the original transport, e.g. so that redirects also go to https urls - otherwise redirects result in a loop. The F5 can set a custom http header (e.g. "Original-Transport" with value "SSL") so that this can be evaluated and handled appropriately.
+
+The solution in this case: A servlet filter checks if there's the http header "Original-Transport", and if it has the value "SSL" an HttpServletRequestWrapper is created which says that this request uses https, and also an HttpServletResponseWrapper is installed which makes correct redirects.
