@@ -66,7 +66,7 @@ public final class HttpsRedirectingServletResponse extends
                  * current requestURI
                  */
                 final String requestedLocation = location;
-                String requestURI = _request.getRequestURI();
+                final String requestURI = _request.getRequestURI();
                 final int lastSlashIdx = requestURI.lastIndexOf( '/' );
                 if ( lastSlashIdx > 0 ) {
                     location = requestURI.substring( 0, lastSlashIdx + 1 ) + location;
@@ -78,8 +78,8 @@ public final class HttpsRedirectingServletResponse extends
                 location = TARGET_SCHEME + "://" + serverName + location;
                 LOG.debug( "Got url starting with not with http:// and not with /," +
                         "put https://, the servername and the current requestURI in front of it." +
-                        "\nRequested location: " + requestedLocation +
-                        "\nRedirecting to location: " + location );
+                        "\nRequested location: {}" +
+                        "\nRedirecting to location: {}",requestedLocation, location );
             }
         }
         super.sendRedirect( location );
