@@ -9,7 +9,7 @@ SLF4J = transitive( 'org.slf4j:slf4j-simple:jar:1.5.6' )
 desc 'servlet-original-transport-support'
 define 'servlet-original-transport-support' do
   project.group = 'de.javakaffee.web'
-  project.version = '1.0'
+  project.version = '1.1'
   
   compile.with(SERVLET_API, SLF4J).using(:source=>'1.5', :target=>'1.5')
   
