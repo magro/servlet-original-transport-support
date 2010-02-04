@@ -1,11 +1,16 @@
 This project makes SSL offloading transparent to your web application.
 
+== Problem description ==
 If your loadbalancer offloads SSL and communicates only via http with your servlet container you still need to know the original transport, e.g. because your application needs to know if a request came in via http or https. The typical issue is, that your application does "think" the request came in via http and redirects to the https url, which - because the loadbalancer offloads SSL - again comes in as an http request, and the next round is going on. This is the beginning of a redirect loop. Therefore two things needs to be done for former https requests: the servlet request needs to behave as if it was an https request, and the response needs to redirect to the correct https urls.
 The good thing is that most loadbalancers can set some custom header in the http request, that shows, that/if the original transport was https instead of http.
 
+== Solution ==
 The solution in this case: A servlet filter checks if there's the http header "Original-Transport" (might be configurable), and if it has the value "SSL" an HttpServletRequestWrapper is created which says that this request uses https, and also an HttpServletResponseWrapper is installed which makes correct redirects.
 
-If you want to use this just add a filter element to your web.xml:
+== Installation and configuration ==
+To use this library you need the jar file in your classpath (for building you can use buildr, see http://buildr.apache.org, or maven).
+
+Add a filter element to your web.xml:
 
     <filter>
         <filter-name>OriginalTransportFilter</filter-name>
@@ -17,6 +22,13 @@ If you want to use this just add a filter element to your web.xml:
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-Of course you need the jar file in your classpath (for building see http://buildr.apache.org).
+By default, redirects to a url starting with "http://" are left as they are (still redirecting to http://), but it might be required to always redirect to https:// urls if the request came in over https. This can be activated with the filter-param "redirectType" with the value "OVERRIDE_HTTP" (the default behavior is represented by the value "KEEP_HTTP"). An example configuration of the filter element:
 
-
+    <filter>
+        <filter-name>OriginalTransportFilter</filter-name>
+        <filter-class>de.javakaffee.web.originaltransport.OriginalTransportCheckingFilter</filter-class>
+        <init-param>
+            <param-name>redirectType</param-name>
+            <param-value>OVERRIDE_HTTP</param-value>
+        </init-param>
+    </filter>
