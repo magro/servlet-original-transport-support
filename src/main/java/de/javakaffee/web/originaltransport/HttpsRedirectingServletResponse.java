@@ -35,12 +35,14 @@ import org.slf4j.LoggerFactory;
 public final class HttpsRedirectingServletResponse extends
         HttpServletResponseWrapper {
 
-    public enum ServletResponseType {
+    public enum RedirectType {
         /** Any incoming URL will be converted to https, even if it has an explicit protocol set as 'http'. */
         OVERRIDE_HTTP,
         /** Any incoming URL will be converted to https if it does not yet have an explicit protocol set. */
         KEEP_HTTP;
     }
+
+    protected static final RedirectType DEFAULT_REDIRECT_TYPE = RedirectType.OVERRIDE_HTTP;
 
     private static final Logger LOG = LoggerFactory.getLogger( HttpsRedirectingServletResponse.class );
 
@@ -48,20 +50,20 @@ public final class HttpsRedirectingServletResponse extends
 
     private final HttpServletRequest _request;
 
-    private final ServletResponseType _responseType;
+    private final RedirectType _redirectType;
 
     /**
      * @deprecated backwards compatibility constructor, use explicit one instead.
      */
     @Deprecated
     public HttpsRedirectingServletResponse( final HttpServletRequest request, final HttpServletResponse response ) {
-        this(request, response, ServletResponseType.OVERRIDE_HTTP);
+        this(request, response, DEFAULT_REDIRECT_TYPE);
     }
 
-    public HttpsRedirectingServletResponse( final HttpServletRequest request, final HttpServletResponse response, final ServletResponseType responseType ) {
+    public HttpsRedirectingServletResponse( final HttpServletRequest request, final HttpServletResponse response, final RedirectType redirectType ) {
         super( response );
         _request = request;
-        _responseType = responseType;
+        _redirectType = redirectType;
     }
 
     /* (non-Javadoc)
@@ -71,7 +73,7 @@ public final class HttpsRedirectingServletResponse extends
     public void sendRedirect( String location ) throws IOException {
         if ( !location.startsWith( "https://" ) ) {
             if ( location.startsWith( "http://" ) ) {
-                if (_responseType == ServletResponseType.OVERRIDE_HTTP) {
+                if ( _redirectType == RedirectType.OVERRIDE_HTTP ) {
                     LOG.debug( "Got url starting with http://, changing http to https as response type is set to 'Override'..." );
                     location = location.replaceFirst( "http://", "https://" );
                 }

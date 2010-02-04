@@ -17,6 +17,7 @@
 package de.javakaffee.web.originaltransport;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,8 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.javakaffee.web.originaltransport.HttpsRedirectingServletResponse.ServletResponseType;
-
+import de.javakaffee.web.originaltransport.HttpsRedirectingServletResponse.RedirectType;
 
 /**
  * This Filter checks, if there's the HTTP header "Original-Transport"
@@ -47,7 +47,7 @@ public final class OriginalTransportCheckingFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger( OriginalTransportCheckingFilter.class );
 	public static final String RESPONSE_TYPE_PARAM = "servletResponseType";
 
-    private HttpsRedirectingServletResponse.ServletResponseType _servletResponseType = ServletResponseType.OVERRIDE_HTTP;
+    private HttpsRedirectingServletResponse.RedirectType _redirectType = HttpsRedirectingServletResponse.DEFAULT_REDIRECT_TYPE;
 
 
     /* (non-Javadoc)
@@ -65,7 +65,7 @@ public final class OriginalTransportCheckingFilter implements Filter {
         if ( OriginalTransportUtils.isOriginalTransportHttps( httpRequest ) ) {
             LOG.debug( "Found header 'Original-Transport', wrapping request and response with fixes." );
             request = new HttpsServletRequest( httpRequest );
-            response = new HttpsRedirectingServletResponse( httpRequest, (HttpServletResponse) response, _servletResponseType );
+            response = new HttpsRedirectingServletResponse( httpRequest, (HttpServletResponse) response, _redirectType );
         }
         chain.doFilter( request, response );
     }
@@ -74,18 +74,14 @@ public final class OriginalTransportCheckingFilter implements Filter {
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
      */
     public void init( final FilterConfig filterConfig ) throws ServletException {
-        final String servletResponseType = filterConfig.getInitParameter(RESPONSE_TYPE_PARAM);
-        try {
-            _servletResponseType = HttpsRedirectingServletResponse.ServletResponseType.valueOf( servletResponseType );
-        } catch (final Throwable f) {
-            final StringBuilder sb = new StringBuilder();
-            for (final HttpsRedirectingServletResponse.ServletResponseType t : HttpsRedirectingServletResponse.ServletResponseType.values()) {
-                if (sb.length() > 0) {
-                    sb.append(", ");
-                }
-                sb.append( t.name() );
+        final String redirectType = filterConfig.getInitParameter( RESPONSE_TYPE_PARAM );
+        if ( redirectType != null ) {
+            try {
+                _redirectType = HttpsRedirectingServletResponse.RedirectType.valueOf( redirectType );
+            } catch (final Throwable f) {
+                throw new IllegalArgumentException( "Illegal argument to " + RESPONSE_TYPE_PARAM +
+                        ", allowed values are: " + Arrays.asList( RedirectType.values() ));
             }
-            throw new IllegalArgumentException( "Illegal argument to " + RESPONSE_TYPE_PARAM + ", allowed values are: " + sb.toString());
         }
     }
 
