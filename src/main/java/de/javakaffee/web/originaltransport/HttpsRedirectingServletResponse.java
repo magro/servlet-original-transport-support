@@ -42,7 +42,7 @@ public final class HttpsRedirectingServletResponse extends
         KEEP_HTTP;
     }
 
-    protected static final RedirectType DEFAULT_REDIRECT_TYPE = RedirectType.OVERRIDE_HTTP;
+    protected static final RedirectType DEFAULT_REDIRECT_TYPE = RedirectType.KEEP_HTTP;
 
     private static final Logger LOG = LoggerFactory.getLogger( HttpsRedirectingServletResponse.class );
 
