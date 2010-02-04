@@ -45,7 +45,7 @@ import de.javakaffee.web.originaltransport.HttpsRedirectingServletResponse.Redir
 public final class OriginalTransportCheckingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger( OriginalTransportCheckingFilter.class );
-	public static final String RESPONSE_TYPE_PARAM = "servletResponseType";
+	public static final String REDIRECT_TYPE_PARAM = "redirectType";
 
     private HttpsRedirectingServletResponse.RedirectType _redirectType = HttpsRedirectingServletResponse.DEFAULT_REDIRECT_TYPE;
 
@@ -74,12 +74,12 @@ public final class OriginalTransportCheckingFilter implements Filter {
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
      */
     public void init( final FilterConfig filterConfig ) throws ServletException {
-        final String redirectType = filterConfig.getInitParameter( RESPONSE_TYPE_PARAM );
+        final String redirectType = filterConfig.getInitParameter( REDIRECT_TYPE_PARAM );
         if ( redirectType != null ) {
             try {
                 _redirectType = HttpsRedirectingServletResponse.RedirectType.valueOf( redirectType );
             } catch (final Throwable f) {
-                throw new IllegalArgumentException( "Illegal argument to " + RESPONSE_TYPE_PARAM +
+                throw new IllegalArgumentException( "Illegal argument to " + REDIRECT_TYPE_PARAM +
                         ", allowed values are: " + Arrays.asList( RedirectType.values() ));
             }
         }
