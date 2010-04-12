@@ -62,7 +62,9 @@ public final class OriginalTransportCheckingFilter implements Filter {
     public void doFilter( ServletRequest request, ServletResponse response,
             final FilterChain chain ) throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
-        if ( OriginalTransportUtils.isOriginalTransportHttps( httpRequest ) ) {
+        // first check, if the request already knows that it's secure. this is useful for cases,
+        // where this filter is configured without actually being needed
+        if ( !request.isSecure() && OriginalTransportUtils.isOriginalTransportHttps( httpRequest ) ) {
             LOG.debug( "Found header 'Original-Transport', wrapping request and response with fixes." );
             request = new HttpsServletRequest( httpRequest );
             response = new HttpsRedirectingServletResponse( httpRequest, (HttpServletResponse) response, _redirectType );
